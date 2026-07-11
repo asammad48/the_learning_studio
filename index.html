@@ -3,54 +3,85 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>All subjects | The Learning Studio</title>
+  <title>The Learning Studio</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="assets/css/styles.css" />
 </head>
-<body data-page="subjects">
+<body>
   <header class="site-header">
     <nav class="navbar shell" aria-label="Main navigation">
-      <a class="brand" href="index.html" aria-label="The Learning Studio home"><span class="brand-mark">L</span><span>The Learning Studio</span></a>
+      <a class="brand" href="index.html" aria-label="The Learning Studio home">
+        <span class="brand-mark">L</span>
+        <span>The Learning Studio</span>
+      </a>
       <button class="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
       <div class="nav-panel">
         <ul class="nav-links">
           <li><a href="index.html">Home</a></li>
-          <li><a href="index.html#subjects">Subjects</a></li>
+          <li><a href="subjects.html">Subjects</a></li>
           <li><a href="lesson-management.html">Blog</a></li>
           <li><a href="subject-business.html">About</a></li>
           <li><a href="#contact">Contact</a></li>
         </ul>
-        <label class="site-search" aria-label="Search the site"><span>⌕</span><input type="search" placeholder="Search" /></label>
+        <label class="site-search" aria-label="Search the site">
+          <span>⌕</span>
+          <input type="search" placeholder="Search" />
+        </label>
         <a class="youtube-button" href="https://www.youtube.com/" target="_blank" rel="noreferrer">▶ Watch on YouTube</a>
       </div>
     </nav>
   </header>
 
   <main>
-    <section class="library-hero" id="subjects">
-      <div class="shell text-column">
-        <p class="eyebrow">Browse the library</p>
-        <h1>All subjects</h1>
-        <p class="lead">Explore every subject in the library, grouped by category. Search or filter to find exactly what you want to learn.</p>
-        <div class="subject-search">
-          <span>⌕</span>
-          <input id="subjectSearch" type="search" placeholder="Search subjects — e.g. Management, AI, Finance..." />
-          <button id="clearSearch" type="button">Clear</button>
+    <section class="home-hero">
+      <div class="shell two-column">
+        <div>
+          <p class="eyebrow">Learn step by step</p>
+          <h1>The Learning Studio</h1>
+          <p class="lead">A clean learning library for subjects, lessons, notes, videos and quizzes. Browse a complete subject directory or jump into a featured lesson.</p>
+          <div class="hero-actions">
+            <a class="primary-button" href="subjects.html">Browse subjects →</a>
+            <a class="secondary-button" href="lesson-management.html">Read first lesson</a>
+          </div>
         </div>
-        <div class="filter-pills" id="categoryFilters" aria-label="Subject category filters"></div>
-        <p class="shown-count"><span id="shownCount">28</span> subjects shown</p>
+        <div class="cover-card home-cover"><span>learning studio preview</span></div>
       </div>
     </section>
 
-    <section class="subject-directory shell" aria-live="polite">
-      <div id="subjectGroups" class="subject-groups"></div>
+    <section class="page-map shell">
+      <div class="group-heading"><h2>Implemented screens</h2></div>
+      <div class="screen-grid">
+        <a class="screen-card" href="subjects.html">
+          <span>01</span>
+          <h3>All subjects library</h3>
+          <p>Search, clear button, active category pills, grouped subject cards and subject count.</p>
+        </a>
+        <a class="screen-card" href="subject-business.html">
+          <span>02</span>
+          <h3>Business subject page</h3>
+          <p>Breadcrumbs, subject tag, lesson statistics, CTA buttons and cover artwork area.</p>
+        </a>
+        <a class="screen-card" href="subject-ai.html">
+          <span>03</span>
+          <h3>Artificial Intelligence page</h3>
+          <p>AI & Data landing screen matching the supplied subject hero screenshot.</p>
+        </a>
+        <a class="screen-card" href="lesson-management.html">
+          <span>04</span>
+          <h3>Lesson and quiz page</h3>
+          <p>Lesson header, article content, selected quiz answers, score panel and FAQ section.</p>
+        </a>
+      </div>
     </section>
   </main>
 
   <footer class="site-footer" id="contact">
-    <div class="shell footer-grid"><strong>The Learning Studio</strong><span>Learn with videos, notes, examples and quizzes.</span></div>
+    <div class="shell footer-grid">
+      <strong>The Learning Studio</strong>
+      <span>Complete static HTML, CSS and JavaScript project.</span>
+    </div>
   </footer>
   <script src="assets/js/app.js"></script>
 </body>
