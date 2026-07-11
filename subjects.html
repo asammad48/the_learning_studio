@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>All subjects | The Learning Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body data-page="subjects">
+  <header class="site-header">
+    <nav class="navbar shell" aria-label="Main navigation">
+      <a class="brand" href="index.html" aria-label="The Learning Studio home"><span class="brand-mark">L</span><span>The Learning Studio</span></a>
+      <button class="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+      <div class="nav-panel">
+        <ul class="nav-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="subjects.html">Subjects</a></li>
+          <li><a href="lesson-management.html">Blog</a></li>
+          <li><a href="subject-business.html">About</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+        <label class="site-search" aria-label="Search the site"><span>⌕</span><input type="search" placeholder="Search" /></label>
+        <a class="youtube-button" href="https://www.youtube.com/" target="_blank" rel="noreferrer">▶ Watch on YouTube</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="library-hero" id="subjects">
+      <div class="shell text-column">
+        <p class="eyebrow">Browse the library</p>
+        <h1>All subjects</h1>
+        <p class="lead">Explore every subject in the library, grouped by category. Search or filter to find exactly what you want to learn.</p>
+        <div class="subject-search">
+          <span>⌕</span>
+          <input id="subjectSearch" type="search" placeholder="Search subjects — e.g. Management, AI, Finance..." />
+          <button id="clearSearch" type="button">Clear</button>
+        </div>
+        <div class="filter-pills" id="categoryFilters" aria-label="Subject category filters"></div>
+        <p class="shown-count"><span id="shownCount">28</span> subjects shown</p>
+      </div>
+    </section>
+
+    <section class="subject-directory shell" aria-live="polite">
+      <div id="subjectGroups" class="subject-groups"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer" id="contact">
+    <div class="shell footer-grid"><strong>The Learning Studio</strong><span>Learn with videos, notes, examples and quizzes.</span></div>
+  </footer>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
