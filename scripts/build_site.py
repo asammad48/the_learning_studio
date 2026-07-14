@@ -212,8 +212,18 @@ def build_blog(lessons: list[dict]) -> None:
 
 def build_lessons(lessons: list[dict]) -> None:
     for lesson in lessons:
-        paragraphs = "\n".join(f"        <p>{esc(p)}</p>" for p in lesson.get("body", []))
-        quiz = "\n".join(f"          <div>{esc(q['question'])} <strong>{esc(q['answer'])}</strong></div>" for q in lesson.get("quiz", []))
+        content_html = lesson.get("contentHtml", "").rstrip()
+        if content_html:
+            paragraphs = content_html
+        else:
+            body = "\n".join(f"        <p>{esc(p)}</p>" for p in lesson.get("body", []))
+            quiz = "\n".join(f"          <div>{esc(q['question'])} <strong>{esc(q['answer'])}</strong></div>" for q in lesson.get("quiz", []))
+            paragraphs = f"""      <h2 class="script">Simple explanation</h2>
+{body}
+      <h2 class="script">Quick quiz</h2>
+      <div class="quiz">
+{quiz}
+      </div>"""
         embed = youtube_embed_url(lesson.get("youtubeUrl", ""))
         video = f'<div class="video-frame"><iframe src="{esc(embed)}" title="{esc(lesson["title"])}" allowfullscreen loading="lazy"></iframe></div>' if embed else optional_image(lesson, lesson["title"])
         content = f"""    <section class="page-hero">
@@ -226,12 +236,7 @@ def build_lessons(lessons: list[dict]) -> None:
       </div>
     </section>
     <article class="article">
-      <h2 class="script">Simple explanation</h2>
 {paragraphs}
-      <h2 class="script">Quick quiz</h2>
-      <div class="quiz">
-{quiz}
-      </div>
     </article>"""
         write_page(f"lessons/{lesson['slug']}/index.html", lesson["title"], lesson["excerpt"], content)
 
