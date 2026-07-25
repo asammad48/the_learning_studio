@@ -1,0 +1,69 @@
+name: Build WordPress theme ZIP
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "wordpress-theme/the-learning-studio/**"
+      - "scripts/build_wordpress_theme.py"
+      - ".github/workflows/build-wordpress-theme.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build-theme:
+    name: Validate and package theme
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.0"
+          coverage: none
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Validate PHP syntax
+        run: find wordpress-theme/the-learning-studio -name '*.php' -print0 | xargs -0 -n1 php -l
+
+      - name: Validate theme configuration
+        run: python3 -m json.tool wordpress-theme/the-learning-studio/theme.json >/dev/null
+
+      - name: Build upload-ready theme
+        run: python3 scripts/build_wordpress_theme.py
+
+      - name: Verify ZIP integrity and structure
+        run: |
+          unzip -t dist/the-learning-studio-1.0.0.zip
+          python3 - <<'PY'
+          from pathlib import PurePosixPath
+          from zipfile import ZipFile
+
+          archive_path = "dist/the-learning-studio-1.0.0.zip"
+          with ZipFile(archive_path) as archive:
+              names = archive.namelist()
+          roots = {PurePosixPath(name).parts[0] for name in names}
+          required = {
+              "the-learning-studio/style.css",
+              "the-learning-studio/index.php",
+              "the-learning-studio/functions.php",
+          }
+          assert roots == {"the-learning-studio"}, roots
+          assert required.issubset(names), required - set(names)
+          print("Theme ZIP structure is valid.")
+          PY
+
+      - name: Upload WordPress theme ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: the-learning-studio-1.0.0
+          path: dist/the-learning-studio-1.0.0.zip
+          if-no-files-found: error
+          retention-days: 30
