@@ -1,0 +1,10 @@
+# Generated release archives; the current audited release is force-added when required.
+dist/*.zip
+
+# Local dependencies and environment files.
+node_modules/
+vendor/
+.env
+.env.*
+*.log
+.DS_Store

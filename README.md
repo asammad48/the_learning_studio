@@ -2,6 +2,18 @@
 
 Static, SEO-friendly website for The Learning Studio.
 
+## WordPress CMS version
+
+A custom WordPress theme is available in `wordpress-theme/the-learning-studio/`. It adds a browser-based content workflow with:
+
+- a **Lesson** content type for written, video, and combined lessons;
+- a hierarchical **Subject** taxonomy;
+- lesson duration, YouTube, featured, and quiz fields;
+- dynamic home, lesson archive, subject directory, subject landing, and lesson templates; and
+- a WP-CLI importer for the existing subjects, lessons, and pages.
+
+See `wordpress-theme/README.md` for architecture, installation, editing, migration, testing, limitations, and release instructions. Build the upload-ready archive with `python3 scripts/build_wordpress_theme.py`; it is written to `dist/the-learning-studio-1.0.0.zip`. The static generator documented below remains available and is not required after migrating to WordPress.
+
 ## Content structure
 
 Use the data files as the source of truth:

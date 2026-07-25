@@ -1,0 +1,6 @@
+[
+  {"slug":"about","title":"About","description":"A learning library for everyone, everywhere.","eyebrow":"ABOUT","heading":"A learning library for everyone, everywhere.","body":"The Learning Studio turns complex subjects into simple, visual, structured lessons — combining YouTube videos with written notes, examples, mind maps and quizzes."},
+  {"slug":"contact","title":"Contact","description":"Get in touch for collaborations, feedback, corrections or educational partnerships.","eyebrow":"CONTACT","heading":"Get in touch","body":"For collaborations, feedback, corrections or educational partnerships — we'd love to hear from you.","form":"contact"},
+  {"slug":"privacy","title":"Privacy Policy","description":"Privacy information for The Learning Studio.","eyebrow":"LEGAL","heading":"Privacy Policy","body":"We collect only the information needed to operate learning services and respond to messages."},
+  {"slug":"terms","title":"Terms of Use","description":"Terms for using The Learning Studio.","eyebrow":"LEGAL","heading":"Terms of Use","body":"Use the learning materials responsibly and respect intellectual property."}
+]
