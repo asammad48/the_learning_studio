@@ -36,11 +36,41 @@ function tls_theme_setup(): void {
 }
 add_action( 'after_setup_theme', 'tls_theme_setup' );
 
+/**
+ * Add an optional description below navigation menu item labels.
+ *
+ * WordPress stores menu descriptions but its default classic-menu walker does
+ * not include them in the rendered link text. Limit the additional markup to
+ * this theme's registered menu locations so other menus remain unaffected.
+ *
+ * @param string   $title The filtered menu item title.
+ * @param WP_Post  $item  The current menu item.
+ * @param stdClass $args  wp_nav_menu() arguments.
+ * @return string
+ */
+function tls_nav_menu_item_title( string $title, WP_Post $item, stdClass $args ): string {
+	$theme_locations = array( 'primary', 'footer_explore', 'footer_studio', 'footer_legal' );
+	if ( empty( $item->description ) || empty( $args->theme_location ) || ! in_array( $args->theme_location, $theme_locations, true ) ) {
+		return $title;
+	}
+
+	return $title . '<span class="menu-item-description">' . esc_html( $item->description ) . '</span>';
+}
+add_filter( 'nav_menu_item_title', 'tls_nav_menu_item_title', 10, 3 );
+
 function tls_enqueue_assets(): void {
 	$css_path = get_template_directory() . '/assets/site.css';
 	$js_path  = get_template_directory() . '/assets/navigation.js';
 	wp_enqueue_style( 'tls-site', get_template_directory_uri() . '/assets/site.css', array(), (string) filemtime( $css_path ) );
 	wp_enqueue_script( 'tls-navigation', get_template_directory_uri() . '/assets/navigation.js', array(), (string) filemtime( $js_path ), true );
+	wp_localize_script(
+		'tls-navigation',
+		'tlsNavigation',
+		array(
+			'expandSubmenu'   => __( 'Expand submenu for %s', 'the-learning-studio' ),
+			'collapseSubmenu' => __( 'Collapse submenu for %s', 'the-learning-studio' ),
+		)
+	);
 }
 add_action( 'wp_enqueue_scripts', 'tls_enqueue_assets' );
 

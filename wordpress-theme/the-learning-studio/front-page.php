@@ -6,8 +6,8 @@
  */
 
 get_header();
-$subjects = get_terms( array( 'taxonomy' => 'subject', 'hide_empty' => false, 'parent' => 0, 'number' => 8 ) );
-$lessons  = new WP_Query( array( 'post_type' => 'lesson', 'posts_per_page' => 3 ) );
+$subjects = tls_get_homepage_subjects();
+$lessons  = tls_get_homepage_lessons();
 ?>
 <section class="hero">
 	<div class="wrap hero-grid">
@@ -27,18 +27,18 @@ $lessons  = new WP_Query( array( 'post_type' => 'lesson', 'posts_per_page' => 3 
 </section>
 <section class="section">
 	<div class="wrap">
-		<div class="section-head"><div><span class="mono"><?php esc_html_e( 'Popular subjects', 'the-learning-studio' ); ?></span><h2 class="h2 script"><?php esc_html_e( 'Choose what to learn', 'the-learning-studio' ); ?></h2></div></div>
+		<div class="section-head"><div><span class="mono"><?php esc_html_e( 'Featured subjects', 'the-learning-studio' ); ?></span><h2 class="h2 script"><?php esc_html_e( 'Choose what to learn', 'the-learning-studio' ); ?></h2></div></div>
 		<div class="grid">
-			<?php if ( ! is_wp_error( $subjects ) && $subjects ) : foreach ( $subjects as $subject ) : tls_subject_card( $subject ); endforeach; else : ?><p class="muted"><?php esc_html_e( 'Subjects will appear here after they are added.', 'the-learning-studio' ); ?></p><?php endif; ?>
+			<?php if ( $subjects ) : foreach ( $subjects as $subject ) : tls_subject_card( $subject ); endforeach; else : ?><p class="muted"><?php esc_html_e( 'Subjects will appear here after they are added.', 'the-learning-studio' ); ?></p><?php endif; ?>
 		</div>
 	</div>
 </section>
 <section class="section alt">
 	<div class="wrap">
-		<span class="mono"><?php esc_html_e( 'Latest lessons', 'the-learning-studio' ); ?></span>
-		<h2 class="h2 script"><?php esc_html_e( 'New written notes and videos', 'the-learning-studio' ); ?></h2>
+		<span class="mono"><?php esc_html_e( 'Featured and latest lessons', 'the-learning-studio' ); ?></span>
+		<h2 class="h2 script"><?php esc_html_e( 'Selected written notes and videos', 'the-learning-studio' ); ?></h2>
 		<div class="grid">
-			<?php if ( $lessons->have_posts() ) : while ( $lessons->have_posts() ) : $lessons->the_post(); tls_lesson_card(); endwhile; else : ?><p class="muted"><?php esc_html_e( 'Lessons will appear here after they are published.', 'the-learning-studio' ); ?></p><?php endif; wp_reset_postdata(); ?>
+			<?php if ( $lessons ) : foreach ( $lessons as $lesson ) : tls_lesson_card( $lesson ); endforeach; else : ?><p class="muted"><?php esc_html_e( 'Lessons will appear here after they are published.', 'the-learning-studio' ); ?></p><?php endif; ?>
 		</div>
 	</div>
 </section>

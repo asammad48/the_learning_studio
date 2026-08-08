@@ -26,6 +26,11 @@ The ZIP contains one `the-learning-studio/` folder with `style.css` and `index.p
 - **Appearance → Customize → Site Identity:** title, tagline, and custom logo.
 - **Appearance → Menus:** Primary navigation, Footer: Explore, Footer: Studio, and Footer: Legal.
 
+Featured subjects and lessons are prioritized on the homepage. When fewer items are featured than the available homepage positions, the theme fills the remaining subject positions alphabetically and the remaining lesson positions with the latest published lessons.
+
+Menu item descriptions are displayed beneath their labels in these four theme locations. If the Description field is hidden in the classic menu editor, enable it from **Screen Options**.
+The Primary navigation also supports nested menu items with keyboard-accessible submenu controls and responsive dropdown styling.
+
 The public templates include the homepage, posts page, lesson archive, individual lesson, subject directory, subject archive, standard archives, search, comments, and 404 states.
 
 ## Import bundled legacy content
