@@ -13,7 +13,21 @@ a{color:inherit}
 .nav ul,
 .footer ul { list-style: none; margin: 0; padding: 0; }
 .nav .menu { display: flex; align-items: center; gap: 22px; }
+.menu-item-description { display: block; margin-top: 3px; color: #6c727c; font-size: 12px; font-weight: 400; line-height: 1.35; }
+.footer .menu-item-description { color: #8f949d; }
 .footer .menu li { margin-bottom: 8px; }
+.nav .menu-item { position: relative; }
+.submenu-toggle { display: inline-grid; width: 28px; height: 28px; margin-left: 3px; padding: 0; place-items: center; border: 0; border-radius: 6px; background: transparent; color: #3a3f47; vertical-align: middle; }
+.submenu-toggle span { transition: transform .2s ease; }
+.submenu-toggle[aria-expanded="true"] span { transform: rotate(180deg); }
+.nav .sub-menu { position: absolute; z-index: 20; top: calc(100% + 10px); left: 0; display: block; min-width: 230px; padding: 8px; visibility: hidden; opacity: 0; transform: translateY(-6px); border: 1px solid var(--line); border-radius: 12px; background: #fff; box-shadow: 0 16px 38px rgba(20,22,28,.14); transition: opacity .18s ease, transform .18s ease, visibility .18s; }
+.nav .sub-menu .menu-item { width: 100%; }
+.nav .sub-menu .sub-menu { top: 0; left: calc(100% + 8px); }
+.nav .sub-menu a { display: block; padding: 9px 10px; border-radius: 8px; }
+.nav .sub-menu a:hover { background: #f7f7f2; }
+.nav .menu-item:hover > .sub-menu,
+.nav .menu-item:focus-within > .sub-menu,
+.nav .menu-item.submenu-open > .sub-menu { visibility: visible; opacity: 1; transform: translateY(0); }
 .lesson-hero-image { margin-top: 24px; max-height: 560px; object-fit: cover; }
 .quiz details { background: #fff; border: 1px solid var(--line); border-radius: 12px; margin-top: 12px; padding: 16px; }
 .quiz summary { cursor: pointer; font-weight: 700; }
@@ -48,6 +62,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
 @media(max-width:760px){
   .nav{height:auto;min-height:68px;flex-wrap:wrap;padding-block:12px}.navigation-ready .menu-toggle{display:inline-flex}.menu-toggle-label{font-size:14px}
   .nav .links{flex-basis:100%;width:100%;align-items:stretch;padding:8px 0 4px}.nav.navigation-ready .links{display:none}.nav.navigation-ready .links.is-open{display:flex}.nav .links li,.nav .links a{width:100%}.nav .links a{display:block;padding:10px 4px}
+  .nav .menu-item-has-children{display:grid;grid-template-columns:1fr auto;width:100%}.nav .menu-item-has-children>a{grid-column:1}.nav .submenu-toggle{grid-column:2;grid-row:1;margin-top:5px}.nav .sub-menu{position:static;grid-column:1/-1;display:none;min-width:0;margin:0 0 4px 12px;padding:3px 0 3px 12px;visibility:visible;opacity:1;transform:none;border:0;border-left:2px solid var(--line);border-radius:0;box-shadow:none;transition:none}.nav .menu-item:hover>.sub-menu,.nav .menu-item:focus-within>.sub-menu{display:none}.nav .menu-item.submenu-open>.sub-menu{display:block}.nav .sub-menu a{padding:9px 4px}
   .hero-grid{grid-template-columns:1fr;padding-inline:18px}.wrap{padding-inline:18px}.grid{grid-template-columns:1fr}.search{flex-wrap:wrap}.search input{min-width:0;width:100%}.search .btn{width:100%}
   .article{padding:36px 18px}.article .alignwide{width:calc(100vw - 36px)}.footgrid{padding-inline:18px}.copy{padding-inline:18px}
 }

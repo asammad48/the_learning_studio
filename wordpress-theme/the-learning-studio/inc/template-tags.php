@@ -19,6 +19,92 @@ function tls_get_lesson_format_label( int $post_id = 0 ): string {
 	return $labels[ $format ] ?? $labels['written'];
 }
 
+/**
+ * Get featured top-level subjects, filling unused positions with other terms.
+ *
+ * @param int $limit Maximum number of subjects to return.
+ * @return WP_Term[]
+ */
+function tls_get_homepage_subjects( int $limit = 8 ): array {
+	$limit = max( 1, $limit );
+	$common_args = array(
+		'taxonomy'   => 'subject',
+		'hide_empty' => false,
+		'parent'     => 0,
+		'orderby'    => 'name',
+		'order'      => 'ASC',
+	);
+	$featured = get_terms(
+		array_merge(
+			$common_args,
+			array(
+				'number'     => $limit,
+				'meta_key'   => '_tls_featured',
+				'meta_value' => '1',
+			)
+		)
+	);
+	$subjects = is_wp_error( $featured ) ? array() : $featured;
+
+	if ( count( $subjects ) < $limit ) {
+		$fallback = get_terms(
+			array_merge(
+				$common_args,
+				array(
+					'number'  => $limit - count( $subjects ),
+					'exclude' => wp_list_pluck( $subjects, 'term_id' ),
+				)
+			)
+		);
+		if ( ! is_wp_error( $fallback ) ) {
+			$subjects = array_merge( $subjects, $fallback );
+		}
+	}
+
+	return $subjects;
+}
+
+/**
+ * Get featured lessons, filling unused positions with the latest lessons.
+ *
+ * @param int $limit Maximum number of lessons to return.
+ * @return WP_Post[]
+ */
+function tls_get_homepage_lessons( int $limit = 3 ): array {
+	$limit = max( 1, $limit );
+	$common_args = array(
+		'post_type'      => 'lesson',
+		'post_status'    => 'publish',
+		'posts_per_page' => $limit,
+		'orderby'        => 'date',
+		'order'          => 'DESC',
+	);
+	$lessons = get_posts(
+		array_merge(
+			$common_args,
+			array(
+				'meta_key'   => '_tls_featured',
+				'meta_value' => '1',
+			)
+		)
+	);
+
+	if ( count( $lessons ) < $limit ) {
+		$fallback = get_posts(
+			array_merge(
+				$common_args,
+				array(
+					'posts_per_page' => $limit - count( $lessons ),
+					'post__not_in'   => wp_list_pluck( $lessons, 'ID' ),
+				)
+			)
+		);
+		$lessons = array_merge( $lessons, $fallback );
+	}
+
+	return $lessons;
+}
+
 function tls_lesson_card( ?WP_Post $lesson = null ): void {
 	$lesson  = $lesson ?: get_post();
 	$terms   = get_the_terms( $lesson, 'subject' );
