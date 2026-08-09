@@ -96,6 +96,9 @@ function tls_import_json_content( string $source, bool $dry_run = false, bool $u
 		$term_id = (int) $term['term_id'];
 		update_term_meta( $term_id, '_tls_subject_group', sanitize_text_field( $subject['category'] ?? '' ) );
 		update_term_meta( $term_id, '_tls_featured', ! empty( $subject['featured'] ) );
+		if ( ! empty( $subject['image'] ) ) {
+			update_term_meta( $term_id, '_tls_image_url', esc_url_raw( get_stylesheet_directory_uri() . '/' . ltrim( $subject['image'], '/' ) ) );
+		}
 		update_term_meta( $term_id, '_tls_import_source', $slug );
 		update_term_meta( $term_id, '_tls_import_date', current_time( 'mysql' ) );
 		update_term_meta( $term_id, '_tls_import_hash', md5( (string) wp_json_encode( $subject ) ) );
@@ -269,6 +272,9 @@ function tls_import_json_content( string $source, bool $dry_run = false, bool $u
 		if ( $tags ) {
 			wp_set_object_terms( $post_id, $tags, 'post_tag' );
 		}
+		if ( ! empty( $post['image'] ) ) {
+			tls_attach_featured_image( $post_id, get_stylesheet_directory() . '/' . ltrim( $post['image'], '/' ), $title );
+		}
 		update_post_meta( $post_id, '_tls_import_source', $slug );
 		update_post_meta( $post_id, '_tls_import_date', current_time( 'mysql' ) );
 		update_post_meta( $post_id, '_tls_import_hash', md5( (string) wp_json_encode( $post ) ) );
@@ -293,6 +299,51 @@ function tls_import_json_content( string $source, bool $dry_run = false, bool $u
 	}
 
 	return $result;
+}
+
+/**
+ * Copy a theme-bundled image file into the Media Library and set it as a
+ * post's featured image. Skipped if the post already has a featured image,
+ * so repeated imports never pile up duplicate attachments.
+ *
+ * @param int    $post_id   Post to attach the image to.
+ * @param string $file_path Absolute path to the source image file.
+ * @param string $title     Attachment title.
+ */
+function tls_attach_featured_image( int $post_id, string $file_path, string $title ): void {
+	if ( has_post_thumbnail( $post_id ) || ! is_readable( $file_path ) ) {
+		return;
+	}
+	if ( ! function_exists( 'wp_generate_attachment_metadata' ) ) {
+		require_once ABSPATH . 'wp-admin/includes/image.php';
+	}
+
+	$contents = file_get_contents( $file_path );
+	if ( false === $contents ) {
+		return;
+	}
+	$upload = wp_upload_bits( basename( $file_path ), null, $contents );
+	if ( ! empty( $upload['error'] ) ) {
+		return;
+	}
+
+	$filetype      = wp_check_filetype( basename( $file_path ) );
+	$attachment_id = wp_insert_attachment(
+		array(
+			'post_mime_type' => $filetype['type'],
+			'post_title'     => $title,
+			'post_status'    => 'inherit',
+		),
+		$upload['file'],
+		$post_id
+	);
+	if ( is_wp_error( $attachment_id ) || ! $attachment_id ) {
+		return;
+	}
+
+	$metadata = wp_generate_attachment_metadata( $attachment_id, $upload['file'] );
+	wp_update_attachment_metadata( $attachment_id, $metadata );
+	set_post_thumbnail( $post_id, $attachment_id );
 }
 
 function tls_register_import_page(): void {

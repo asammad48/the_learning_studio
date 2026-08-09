@@ -8,8 +8,15 @@
       "Pick a time you already protect, even ten minutes before you check your phone in the morning, and attach a single lesson to it rather than a vague goal like \"study more.\" Small and specific beats ambitious and vague, because a ten-minute session is easy to start even on a bad day, and starting is almost always the hard part.",
       "Track the streak, not the score. Whether you understood everything perfectly matters far less early on than whether you showed up. After a few weeks the habit runs on its own momentum, and that is when you can afford to stretch the sessions longer or tackle harder material."
     ],
-    "categories": ["Study Tips"],
-    "tags": ["habits", "productivity", "learning"]
+    "categories": [
+      "Study Tips"
+    ],
+    "tags": [
+      "habits",
+      "productivity",
+      "learning"
+    ],
+    "image": "/assets/generated/posts/how-to-build-a-study-habit-that-actually-sticks.png"
   },
   {
     "slug": "why-we-built-the-learning-studio",
@@ -20,8 +27,14 @@
       "So The Learning Studio is built around a single unit: one lesson, one subject, one sitting. Each lesson is short enough to finish on a coffee break but written to leave you with an actual working understanding, not just a list of definitions you will forget by the next morning.",
       "We are starting with business, technology, health, finance, marketing and a handful of other subjects, and we are adding more as we go. If there is a topic you wish existed here, that feedback is exactly what shapes what we build next."
     ],
-    "categories": ["Announcements"],
-    "tags": ["about", "mission"]
+    "categories": [
+      "Announcements"
+    ],
+    "tags": [
+      "about",
+      "mission"
+    ],
+    "image": "/assets/generated/posts/why-we-built-the-learning-studio.png"
   },
   {
     "slug": "five-signs-you-actually-understand-a-topic",
@@ -32,8 +45,14 @@
       "A better test: can you explain it to someone with no background, using your own words and a real example, without looking at your notes? Can you say why it matters, not just what it is? Can you spot a case where it does not apply? Can you connect it to something you already knew before? And can you predict what happens if one part of it changes?",
       "If you can do those five things, you have understanding. If you can only do the first one — recognize the definition when you see it again — you have familiarity, and familiarity is exactly what disappears first under exam pressure or on the job when it actually counts."
     ],
-    "categories": ["Study Tips"],
-    "tags": ["understanding", "learning science"]
+    "categories": [
+      "Study Tips"
+    ],
+    "tags": [
+      "understanding",
+      "learning science"
+    ],
+    "image": "/assets/generated/posts/five-signs-you-actually-understand-a-topic.png"
   },
   {
     "slug": "the-case-for-learning-in-public",
@@ -44,7 +63,13 @@
       "Explaining a topic somewhere even one other person might see it forces a different standard. You cannot leave the gap; you have to actually resolve it, which is exactly the work that builds real understanding rather than the illusion of it.",
       "This does not require a public blog or an audience. A study partner, a small group chat, or even notes you write as if someone else will read them tomorrow is enough to get the same effect. The goal is not attention — it is accountability to clarity."
     ],
-    "categories": ["Learning Culture"],
-    "tags": ["community", "motivation"]
+    "categories": [
+      "Learning Culture"
+    ],
+    "tags": [
+      "community",
+      "motivation"
+    ],
+    "image": "/assets/generated/posts/the-case-for-learning-in-public.png"
   }
 ]
