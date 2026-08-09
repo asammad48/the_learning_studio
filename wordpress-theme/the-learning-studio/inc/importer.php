@@ -14,10 +14,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Import, or preview importing, the bundled legacy JSON content.
  *
- * @param string $source          Directory containing subjects.json, lessons.json, pages.json (or a /data subdirectory of them).
+ * @param string $source          Directory containing subjects.json, lessons.json, pages.json, and optionally posts.json (or a /data subdirectory of them).
  * @param bool   $dry_run         When true, no database writes happen; the same create/update/skip decisions are reported instead.
  * @param bool   $update_existing When true, records whose slug already exists are updated; when false they are left untouched and reported as skipped.
- * @return array{dry_run:bool,subjects:array<int,array<string,string>>,lessons:array<int,array<string,string>>,pages:array<int,array<string,string>>}
+ * @return array{dry_run:bool,subjects:array<int,array<string,string>>,lessons:array<int,array<string,string>>,pages:array<int,array<string,string>>,posts:array<int,array<string,string>>}
  */
 function tls_import_json_content( string $source, bool $dry_run = false, bool $update_existing = false ): array {
 	$source         = untrailingslashit( $source );
@@ -37,11 +37,24 @@ function tls_import_json_content( string $source, bool $dry_run = false, bool $u
 		$data[ $name ] = $decoded;
 	}
 
+	// posts.json is optional: older exports and hand-built --source directories
+	// may not have blog posts at all.
+	$data['posts'] = array();
+	$posts_path    = $data_directory . '/posts.json';
+	if ( is_readable( $posts_path ) ) {
+		$decoded = json_decode( (string) file_get_contents( $posts_path ), true );
+		if ( ! is_array( $decoded ) ) {
+			throw new RuntimeException( sprintf( '%s is not valid JSON.', $posts_path ) );
+		}
+		$data['posts'] = $decoded;
+	}
+
 	$result = array(
 		'dry_run'  => $dry_run,
 		'subjects' => array(),
 		'lessons'  => array(),
 		'pages'    => array(),
+		'posts'    => array(),
 	);
 	$changed = false;
 
@@ -205,6 +218,64 @@ function tls_import_json_content( string $source, bool $dry_run = false, bool $u
 		$result['pages'][] = array( 'action' => $action, 'title' => $title, 'slug' => $slug, 'message' => '' );
 	}
 
+	foreach ( $data['posts'] as $post ) {
+		$slug     = sanitize_title( $post['slug'] ?? '' );
+		$title    = sanitize_text_field( $post['title'] ?? '' );
+		$existing = $slug ? get_page_by_path( $slug, OBJECT, 'post' ) : null;
+
+		if ( $existing && ! $update_existing ) {
+			$result['posts'][] = array(
+				'action'  => 'skipped',
+				'title'   => $title,
+				'slug'    => $slug,
+				'message' => __( 'A Post with this slug already exists.', 'the-learning-studio' ),
+			);
+			continue;
+		}
+
+		$action = $existing ? 'updated' : 'created';
+		if ( $dry_run ) {
+			$result['posts'][] = array( 'action' => $action, 'title' => $title, 'slug' => $slug, 'message' => '' );
+			continue;
+		}
+
+		$body = implode(
+			"\n\n",
+			array_map( static fn( $paragraph ) => '<p>' . esc_html( $paragraph ) . '</p>', $post['body'] ?? array() )
+		);
+		$post_args = array(
+			'ID'           => $existing ? $existing->ID : 0,
+			'post_type'    => 'post',
+			'post_title'   => $title,
+			'post_name'    => $slug,
+			'post_excerpt' => sanitize_textarea_field( $post['excerpt'] ?? '' ),
+			'post_content' => wp_kses_post( $body ),
+		);
+		if ( ! $existing ) {
+			$post_args['post_status'] = 'publish';
+		}
+		$post_id = wp_insert_post( $post_args, true );
+
+		if ( is_wp_error( $post_id ) ) {
+			$result['posts'][] = array( 'action' => 'error', 'title' => $title, 'slug' => $slug, 'message' => $post_id->get_error_message() );
+			continue;
+		}
+
+		$categories = array_map( 'sanitize_text_field', $post['categories'] ?? array() );
+		if ( $categories ) {
+			wp_set_object_terms( $post_id, $categories, 'category' );
+		}
+		$tags = array_map( 'sanitize_text_field', $post['tags'] ?? array() );
+		if ( $tags ) {
+			wp_set_object_terms( $post_id, $tags, 'post_tag' );
+		}
+		update_post_meta( $post_id, '_tls_import_source', $slug );
+		update_post_meta( $post_id, '_tls_import_date', current_time( 'mysql' ) );
+		update_post_meta( $post_id, '_tls_import_hash', md5( (string) wp_json_encode( $post ) ) );
+		$changed            = true;
+		$result['posts'][] = array( 'action' => $action, 'title' => $title, 'slug' => $slug, 'message' => '' );
+	}
+
 	if ( ! $dry_run && ! get_page_by_path( 'subjects', OBJECT, 'page' ) ) {
 		wp_insert_post(
 			array(
@@ -290,7 +361,7 @@ function tls_render_import_page(): void {
 	?>
 	<div class="wrap">
 		<h1><?php esc_html_e( 'Import Learning Studio content', 'the-learning-studio' ); ?></h1>
-		<p><?php esc_html_e( 'Import the subjects, lessons, quizzes, and pages bundled with this theme.', 'the-learning-studio' ); ?></p>
+		<p><?php esc_html_e( 'Import the subjects, lessons, quizzes, pages, and blog posts bundled with this theme.', 'the-learning-studio' ); ?></p>
 		<?php if ( $error ) : ?><div class="notice notice-error"><p><?php echo esc_html( $error ); ?></p></div><?php endif; ?>
 		<?php if ( $result ) : ?>
 			<div class="notice <?php echo $result['dry_run'] ? 'notice-info' : 'notice-success'; ?>">
@@ -306,13 +377,14 @@ function tls_render_import_page(): void {
 			tls_render_import_result_table( __( 'Subjects', 'the-learning-studio' ), $result['subjects'] );
 			tls_render_import_result_table( __( 'Lessons', 'the-learning-studio' ), $result['lessons'] );
 			tls_render_import_result_table( __( 'Pages', 'the-learning-studio' ), $result['pages'] );
+			tls_render_import_result_table( __( 'Posts', 'the-learning-studio' ), $result['posts'] );
 			?>
 		<?php endif; ?>
 		<form method="post">
 			<?php wp_nonce_field( 'tls_import_content', 'tls_import_nonce' ); ?>
 			<p><label><input type="checkbox" name="tls_dry_run" value="1" checked> <?php esc_html_e( 'Dry run (preview only, no changes are saved)', 'the-learning-studio' ); ?></label></p>
 			<p><label><input type="checkbox" name="tls_update_existing" value="1"> <?php esc_html_e( 'Update content that already exists (matched by slug)', 'the-learning-studio' ); ?></label></p>
-			<p class="description"><?php esc_html_e( 'Leave "Update existing" unchecked to only create new Subjects, Lessons, and Pages, leaving anything already present untouched.', 'the-learning-studio' ); ?></p>
+			<p class="description"><?php esc_html_e( 'Leave "Update existing" unchecked to only create new Subjects, Lessons, Pages, and Posts, leaving anything already present untouched.', 'the-learning-studio' ); ?></p>
 			<?php submit_button( __( 'Run import', 'the-learning-studio' ), 'primary', 'tls_import_submit' ); ?>
 		</form>
 	</div>
@@ -334,7 +406,7 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 		 * : Preview the import without writing any changes.
 		 *
 		 * [--update-existing]
-		 * : Update Subjects, Lessons, and Pages that already exist with a matching slug. Without this flag, existing items are left untouched and reported as skipped.
+		 * : Update Subjects, Lessons, Pages, and Posts that already exist with a matching slug. Without this flag, existing items are left untouched and reported as skipped.
 		 */
 		public function __invoke( array $args, array $assoc_args ): void {
 			if ( empty( $assoc_args['source'] ) ) {
@@ -350,7 +422,7 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 				WP_CLI::error( $error->getMessage() );
 				return;
 			}
-			foreach ( array( 'subjects', 'lessons', 'pages' ) as $key ) {
+			foreach ( array( 'subjects', 'lessons', 'pages', 'posts' ) as $key ) {
 				foreach ( $result[ $key ] as $item ) {
 					$detail = $item['message'] ? ' - ' . $item['message'] : '';
 					WP_CLI::log( sprintf( '[%s] %s (%s): %s%s', ucfirst( $key ), $item['title'], $item['slug'], $item['action'], $detail ) );
