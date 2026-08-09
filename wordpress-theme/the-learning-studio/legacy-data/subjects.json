@@ -10,5 +10,6 @@
   {"slug":"digital-marketing","name":"Digital Marketing","category":"Marketing & Digital Skills","lessons":25,"featured":true,"description":"SEO, social, email and ads — marketing in the online world."},
   {"slug":"psychology","name":"Psychology","category":"Psychology & Education","lessons":24,"featured":true,"description":"How the mind works — behavior, memory, emotion and thought."},
   {"slug":"supply-chain-management","name":"Supply Chain Management","category":"Supply Chain & Operations","lessons":21,"featured":true,"description":"How products move from raw materials to the customer."},
-  {"slug":"operations-management","name":"Operations Management","category":"Supply Chain & Operations","lessons":20,"featured":true,"description":"Designing and running the processes that deliver value."}
+  {"slug":"operations-management","name":"Operations Management","category":"Supply Chain & Operations","lessons":20,"featured":true,"description":"Designing and running the processes that deliver value."},
+  {"slug":"project-management","name":"Project Management","category":"Business & Management","lessons":1,"featured":false,"description":"Planning, scheduling and delivering projects on time, on budget and within scope."}
 ]

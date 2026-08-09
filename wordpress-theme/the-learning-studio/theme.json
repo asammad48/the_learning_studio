@@ -3,12 +3,14 @@
   "version": 2,
   "settings": {
     "appearanceTools": true,
-    "layout": { "contentSize": "760px", "wideSize": "1180px" },
+    "layout": { "contentSize": "820px", "wideSize": "1180px" },
     "color": {
       "palette": [
-        { "slug": "ink", "name": "Ink", "color": "#17201b" },
-        { "slug": "cream", "name": "Cream", "color": "#f7f2e8" },
-        { "slug": "sage", "name": "Sage", "color": "#6f806e" }
+        { "slug": "ink", "name": "Ink", "color": "#161616" },
+        { "slug": "white", "name": "White", "color": "#ffffff" },
+        { "slug": "cream", "name": "Cream", "color": "#fbfbf8" },
+        { "slug": "line", "name": "Line", "color": "#e6e6df" },
+        { "slug": "accent", "name": "Accent", "color": "#1d5fa7" }
       ]
     }
   }

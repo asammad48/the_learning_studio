@@ -7,5 +7,6 @@
 	<?php endif; ?>
 	<span class="mono pill"><?php echo esc_html( get_the_date() ); ?></span>
 	<b class="script"><?php the_title(); ?></b>
-	<?php if ( has_excerpt() ) : ?><span class="muted"><?php echo esc_html( get_the_excerpt() ); ?></span><?php endif; ?>
+	<?php $excerpt = get_the_excerpt(); ?>
+	<?php if ( $excerpt ) : ?><span class="muted"><?php echo esc_html( $excerpt ); ?></span><?php endif; ?>
 </a>

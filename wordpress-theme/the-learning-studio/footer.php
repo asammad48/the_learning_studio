@@ -10,7 +10,7 @@
 	<div class="wrap footgrid">
 		<div>
 			<a class="brand" href="<?php echo esc_url( home_url( '/' ) ); ?>">
-				<span class="logo script" aria-hidden="true">L</span>
+				<?php tls_site_logo(); ?>
 				<span class="script"><?php bloginfo( 'name' ); ?></span>
 			</a>
 			<p class="muted"><?php echo esc_html( get_bloginfo( 'description' ) ); ?></p>

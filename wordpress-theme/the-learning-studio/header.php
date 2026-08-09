@@ -17,11 +17,7 @@
 <header class="top">
 	<nav class="wrap nav" aria-label="<?php esc_attr_e( 'Main navigation', 'the-learning-studio' ); ?>">
 		<a class="brand" href="<?php echo esc_url( home_url( '/' ) ); ?>">
-			<?php if ( has_custom_logo() ) : ?>
-				<?php echo wp_get_attachment_image( get_theme_mod( 'custom_logo' ), 'thumbnail', false, array( 'class' => 'custom-logo' ) ); ?>
-			<?php else : ?>
-				<span class="logo script" aria-hidden="true">L</span>
-			<?php endif; ?>
+			<?php tls_site_logo(); ?>
 			<span class="script"><?php bloginfo( 'name' ); ?></span>
 		</a>
 		<button class="menu-toggle" type="button" aria-controls="primary-menu" aria-expanded="false"><span class="menu-toggle-label"><?php esc_html_e( 'Menu', 'the-learning-studio' ); ?></span><span aria-hidden="true">&#9776;</span></button>

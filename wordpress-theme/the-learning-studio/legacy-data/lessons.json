@@ -118,5 +118,25 @@
         "answer": "Decisions"
       }
     ]
+  },
+  {
+    "slug": "what-is-project-management",
+    "title": "What Is Project Management?",
+    "subject": "Business & Management",
+    "subjectSlug": "project-management",
+    "duration": "6 min read",
+    "featured": false,
+    "excerpt": "The five stages every project moves through, from initiation to closure, and why scope, time and cost stay in constant tension.",
+    "body": [
+      "Project management is the discipline of planning, organizing and overseeing a temporary piece of work with a clear start and end, until it delivers a defined outcome.",
+      "Most projects move through five stages: initiation, planning, execution, monitoring and closure. Initiation confirms the project is worth doing, planning sets the schedule, budget and resources, execution is where the work actually happens, monitoring tracks progress against the plan, and closure confirms the deliverable is complete and hands it over.",
+      "Every project manager balances the same three constraints: scope, time and cost. Pulling on one, such as adding features, shortening the deadline or cutting the budget, puts pressure on the other two, which is why realistic planning matters as much as steady execution."
+    ],
+    "quiz": [
+      {
+        "question": "What are the three constraints a project manager must balance?",
+        "answer": "Scope, time and cost"
+      }
+    ]
   }
 ]

@@ -13,6 +13,7 @@ require_once get_template_directory() . '/inc/content-types.php';
 require_once get_template_directory() . '/inc/template-tags.php';
 require_once get_template_directory() . '/inc/importer.php';
 require_once get_template_directory() . '/inc/customizer.php';
+require_once get_template_directory() . '/inc/setup.php';
 
 function tls_theme_setup(): void {
 	load_theme_textdomain( 'the-learning-studio', get_template_directory() . '/languages' );
@@ -80,31 +81,82 @@ function tls_flush_rewrites_after_switch(): void {
 }
 add_action( 'after_switch_theme', 'tls_flush_rewrites_after_switch' );
 
+/**
+ * Resolve the URL of a Page by slug, falling back to a static path when the
+ * Page does not exist (e.g. renamed or not yet created after import).
+ *
+ * @param string $slug          Page slug to look up.
+ * @param string $fallback_path Path appended to home_url() when the Page is missing.
+ * @return string
+ */
+function tls_fallback_page_url( string $slug, string $fallback_path ): string {
+	$page = get_page_by_path( $slug, OBJECT, 'page' );
+	if ( $page instanceof WP_Post ) {
+		$permalink = get_permalink( $page );
+		if ( $permalink ) {
+			return $permalink;
+		}
+	}
+
+	return home_url( $fallback_path );
+}
+
+/**
+ * Resolve the blog/posts listing URL, preferring the configured posts page.
+ *
+ * @return string
+ */
+function tls_fallback_blog_url(): string {
+	$page_for_posts = (int) get_option( 'page_for_posts' );
+	if ( $page_for_posts > 0 ) {
+		$permalink = get_permalink( $page_for_posts );
+		if ( $permalink ) {
+			return $permalink;
+		}
+	}
+
+	return tls_fallback_page_url( 'blog', '/blog/' );
+}
+
+/**
+ * Resolve the privacy policy URL, preferring the configured privacy page.
+ *
+ * @return string
+ */
+function tls_fallback_privacy_url(): string {
+	$privacy_url = get_privacy_policy_url();
+	if ( $privacy_url ) {
+		return $privacy_url;
+	}
+
+	return tls_fallback_page_url( 'privacy', '/privacy/' );
+}
+
 function tls_fallback_menu(): void {
 	echo '<ul id="primary-menu" class="menu links">';
 	echo '<li><a href="' . esc_url( get_post_type_archive_link( 'lesson' ) ) . '">' . esc_html__( 'Lessons', 'the-learning-studio' ) . '</a></li>';
-	echo '<li><a href="' . esc_url( home_url( '/subjects/' ) ) . '">' . esc_html__( 'Subjects', 'the-learning-studio' ) . '</a></li>';
-	echo '<li><a href="' . esc_url( home_url( '/blog/' ) ) . '">' . esc_html__( 'Blog', 'the-learning-studio' ) . '</a></li>';
+	echo '<li><a href="' . esc_url( tls_fallback_page_url( 'subjects', '/subjects/' ) ) . '">' . esc_html__( 'Subjects', 'the-learning-studio' ) . '</a></li>';
+	echo '<li><a href="' . esc_url( tls_fallback_blog_url() ) . '">' . esc_html__( 'Blog', 'the-learning-studio' ) . '</a></li>';
 	echo '</ul>';
 }
 
 function tls_footer_explore_fallback(): void {
 	echo '<ul class="menu">';
 	echo '<li><a href="' . esc_url( get_post_type_archive_link( 'lesson' ) ) . '">' . esc_html__( 'Lessons', 'the-learning-studio' ) . '</a></li>';
-	echo '<li><a href="' . esc_url( home_url( '/subjects/' ) ) . '">' . esc_html__( 'Subjects', 'the-learning-studio' ) . '</a></li>';
+	echo '<li><a href="' . esc_url( tls_fallback_page_url( 'subjects', '/subjects/' ) ) . '">' . esc_html__( 'Subjects', 'the-learning-studio' ) . '</a></li>';
 	echo '</ul>';
 }
 
 function tls_footer_studio_fallback(): void {
 	echo '<ul class="menu">';
-	echo '<li><a href="' . esc_url( home_url( '/about/' ) ) . '">' . esc_html__( 'About', 'the-learning-studio' ) . '</a></li>';
-	echo '<li><a href="' . esc_url( home_url( '/contact/' ) ) . '">' . esc_html__( 'Contact', 'the-learning-studio' ) . '</a></li>';
+	echo '<li><a href="' . esc_url( tls_fallback_page_url( 'about', '/about/' ) ) . '">' . esc_html__( 'About', 'the-learning-studio' ) . '</a></li>';
+	echo '<li><a href="' . esc_url( tls_fallback_page_url( 'contact', '/contact/' ) ) . '">' . esc_html__( 'Contact', 'the-learning-studio' ) . '</a></li>';
 	echo '</ul>';
 }
 
 function tls_footer_legal_fallback(): void {
 	echo '<ul class="menu">';
-	echo '<li><a href="' . esc_url( get_privacy_policy_url() ?: home_url( '/privacy/' ) ) . '">' . esc_html__( 'Privacy Policy', 'the-learning-studio' ) . '</a></li>';
-	echo '<li><a href="' . esc_url( home_url( '/terms/' ) ) . '">' . esc_html__( 'Terms of Use', 'the-learning-studio' ) . '</a></li>';
+	echo '<li><a href="' . esc_url( tls_fallback_privacy_url() ) . '">' . esc_html__( 'Privacy Policy', 'the-learning-studio' ) . '</a></li>';
+	echo '<li><a href="' . esc_url( tls_fallback_page_url( 'terms', '/terms/' ) ) . '">' . esc_html__( 'Terms of Use', 'the-learning-studio' ) . '</a></li>';
 	echo '</ul>';
 }
