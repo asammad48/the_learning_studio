@@ -183,7 +183,7 @@ function tls_setup_menus( array $page_ids, bool $reassign ): array {
 			$menu_id     = $menu_object->term_id;
 			$menu_action = 'reused';
 		} else {
-			$created = wp_create_menu( $spec['name'] );
+			$created = wp_create_nav_menu( $spec['name'] );
 			if ( is_wp_error( $created ) ) {
 				$report[] = array( 'action' => 'error', 'title' => $spec['name'], 'slug' => $location, 'message' => $created->get_error_message() );
 				continue;
