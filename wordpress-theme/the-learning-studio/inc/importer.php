@@ -12,12 +12,31 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * Load and decode an optional JSON data file, returning an empty array if
+ * it does not exist (older exports and hand-built --source directories may
+ * not have every file).
+ *
+ * @param string $path Absolute path to the JSON file.
+ * @return array<int,array<string,mixed>>
+ */
+function tls_load_optional_json( string $path ): array {
+	if ( ! is_readable( $path ) ) {
+		return array();
+	}
+	$decoded = json_decode( (string) file_get_contents( $path ), true );
+	if ( ! is_array( $decoded ) ) {
+		throw new RuntimeException( sprintf( '%s is not valid JSON.', $path ) );
+	}
+	return $decoded;
+}
+
+/**
  * Import, or preview importing, the bundled legacy JSON content.
  *
- * @param string $source          Directory containing subjects.json, lessons.json, pages.json, and optionally posts.json (or a /data subdirectory of them).
+ * @param string $source          Directory containing subjects.json, lessons.json, pages.json, and optionally posts.json/quizzes.json/surveys.json (or a /data subdirectory of them).
  * @param bool   $dry_run         When true, no database writes happen; the same create/update/skip decisions are reported instead.
  * @param bool   $update_existing When true, records whose slug already exists are updated; when false they are left untouched and reported as skipped.
- * @return array{dry_run:bool,subjects:array<int,array<string,string>>,lessons:array<int,array<string,string>>,pages:array<int,array<string,string>>,posts:array<int,array<string,string>>}
+ * @return array{dry_run:bool,subjects:array<int,array<string,string>>,lessons:array<int,array<string,string>>,pages:array<int,array<string,string>>,posts:array<int,array<string,string>>,quizzes:array<int,array<string,string>>,surveys:array<int,array<string,string>>}
  */
 function tls_import_json_content( string $source, bool $dry_run = false, bool $update_existing = false ): array {
 	$source         = untrailingslashit( $source );
@@ -37,16 +56,10 @@ function tls_import_json_content( string $source, bool $dry_run = false, bool $u
 		$data[ $name ] = $decoded;
 	}
 
-	// posts.json is optional: older exports and hand-built --source directories
-	// may not have blog posts at all.
-	$data['posts'] = array();
-	$posts_path    = $data_directory . '/posts.json';
-	if ( is_readable( $posts_path ) ) {
-		$decoded = json_decode( (string) file_get_contents( $posts_path ), true );
-		if ( ! is_array( $decoded ) ) {
-			throw new RuntimeException( sprintf( '%s is not valid JSON.', $posts_path ) );
-		}
-		$data['posts'] = $decoded;
+	// These are optional: older exports and hand-built --source directories
+	// may not have them at all.
+	foreach ( array( 'posts', 'quizzes', 'surveys' ) as $name ) {
+		$data[ $name ] = tls_load_optional_json( $data_directory . '/' . $name . '.json' );
 	}
 
 	$result = array(
@@ -55,6 +68,8 @@ function tls_import_json_content( string $source, bool $dry_run = false, bool $u
 		'lessons'  => array(),
 		'pages'    => array(),
 		'posts'    => array(),
+		'quizzes'  => array(),
+		'surveys'  => array(),
 	);
 	$changed = false;
 
@@ -282,6 +297,98 @@ function tls_import_json_content( string $source, bool $dry_run = false, bool $u
 		$result['posts'][] = array( 'action' => $action, 'title' => $title, 'slug' => $slug, 'message' => '' );
 	}
 
+	foreach ( $data['quizzes'] as $quiz ) {
+		$slug     = sanitize_title( $quiz['slug'] ?? '' );
+		$title    = sanitize_text_field( $quiz['title'] ?? '' );
+		$existing = $slug ? get_page_by_path( $slug, OBJECT, 'quiz' ) : null;
+
+		if ( $existing && ! $update_existing ) {
+			$result['quizzes'][] = array(
+				'action'  => 'skipped',
+				'title'   => $title,
+				'slug'    => $slug,
+				'message' => __( 'A Quiz with this slug already exists.', 'the-learning-studio' ),
+			);
+			continue;
+		}
+
+		$action = $existing ? 'updated' : 'created';
+		if ( $dry_run ) {
+			$result['quizzes'][] = array( 'action' => $action, 'title' => $title, 'slug' => $slug, 'message' => '' );
+			continue;
+		}
+
+		$post_args = array(
+			'ID'           => $existing ? $existing->ID : 0,
+			'post_type'    => 'quiz',
+			'post_title'   => $title,
+			'post_name'    => $slug,
+			'post_excerpt' => sanitize_textarea_field( $quiz['excerpt'] ?? '' ),
+		);
+		if ( ! $existing ) {
+			$post_args['post_status'] = 'publish';
+		}
+		$post_id = wp_insert_post( $post_args, true );
+
+		if ( is_wp_error( $post_id ) ) {
+			$result['quizzes'][] = array( 'action' => 'error', 'title' => $title, 'slug' => $slug, 'message' => $post_id->get_error_message() );
+			continue;
+		}
+
+		update_post_meta( $post_id, '_tls_questions', tls_sanitize_imported_questions( $quiz['questions'] ?? array(), true ) );
+		update_post_meta( $post_id, '_tls_import_source', $slug );
+		update_post_meta( $post_id, '_tls_import_date', current_time( 'mysql' ) );
+		update_post_meta( $post_id, '_tls_import_hash', md5( (string) wp_json_encode( $quiz ) ) );
+		$changed              = true;
+		$result['quizzes'][] = array( 'action' => $action, 'title' => $title, 'slug' => $slug, 'message' => '' );
+	}
+
+	foreach ( $data['surveys'] as $survey ) {
+		$slug     = sanitize_title( $survey['slug'] ?? '' );
+		$title    = sanitize_text_field( $survey['title'] ?? '' );
+		$existing = $slug ? get_page_by_path( $slug, OBJECT, 'survey' ) : null;
+
+		if ( $existing && ! $update_existing ) {
+			$result['surveys'][] = array(
+				'action'  => 'skipped',
+				'title'   => $title,
+				'slug'    => $slug,
+				'message' => __( 'A Survey with this slug already exists.', 'the-learning-studio' ),
+			);
+			continue;
+		}
+
+		$action = $existing ? 'updated' : 'created';
+		if ( $dry_run ) {
+			$result['surveys'][] = array( 'action' => $action, 'title' => $title, 'slug' => $slug, 'message' => '' );
+			continue;
+		}
+
+		$post_args = array(
+			'ID'           => $existing ? $existing->ID : 0,
+			'post_type'    => 'survey',
+			'post_title'   => $title,
+			'post_name'    => $slug,
+			'post_excerpt' => sanitize_textarea_field( $survey['excerpt'] ?? '' ),
+		);
+		if ( ! $existing ) {
+			$post_args['post_status'] = 'publish';
+		}
+		$post_id = wp_insert_post( $post_args, true );
+
+		if ( is_wp_error( $post_id ) ) {
+			$result['surveys'][] = array( 'action' => 'error', 'title' => $title, 'slug' => $slug, 'message' => $post_id->get_error_message() );
+			continue;
+		}
+
+		update_post_meta( $post_id, '_tls_questions', tls_sanitize_imported_questions( $survey['questions'] ?? array(), false ) );
+		update_post_meta( $post_id, '_tls_import_source', $slug );
+		update_post_meta( $post_id, '_tls_import_date', current_time( 'mysql' ) );
+		update_post_meta( $post_id, '_tls_import_hash', md5( (string) wp_json_encode( $survey ) ) );
+		$changed              = true;
+		$result['surveys'][] = array( 'action' => $action, 'title' => $title, 'slug' => $slug, 'message' => '' );
+	}
+
 	if ( ! $dry_run && ! get_page_by_path( 'subjects', OBJECT, 'page' ) ) {
 		wp_insert_post(
 			array(
@@ -412,7 +519,7 @@ function tls_render_import_page(): void {
 	?>
 	<div class="wrap">
 		<h1><?php esc_html_e( 'Import Learning Studio content', 'the-learning-studio' ); ?></h1>
-		<p><?php esc_html_e( 'Import the subjects, lessons, quizzes, pages, and blog posts bundled with this theme.', 'the-learning-studio' ); ?></p>
+		<p><?php esc_html_e( 'Import the subjects, lessons, pages, blog posts, quizzes, and surveys bundled with this theme.', 'the-learning-studio' ); ?></p>
 		<?php if ( $error ) : ?><div class="notice notice-error"><p><?php echo esc_html( $error ); ?></p></div><?php endif; ?>
 		<?php if ( $result ) : ?>
 			<div class="notice <?php echo $result['dry_run'] ? 'notice-info' : 'notice-success'; ?>">
@@ -429,13 +536,15 @@ function tls_render_import_page(): void {
 			tls_render_import_result_table( __( 'Lessons', 'the-learning-studio' ), $result['lessons'] );
 			tls_render_import_result_table( __( 'Pages', 'the-learning-studio' ), $result['pages'] );
 			tls_render_import_result_table( __( 'Posts', 'the-learning-studio' ), $result['posts'] );
+			tls_render_import_result_table( __( 'Quizzes', 'the-learning-studio' ), $result['quizzes'] );
+			tls_render_import_result_table( __( 'Surveys', 'the-learning-studio' ), $result['surveys'] );
 			?>
 		<?php endif; ?>
 		<form method="post">
 			<?php wp_nonce_field( 'tls_import_content', 'tls_import_nonce' ); ?>
 			<p><label><input type="checkbox" name="tls_dry_run" value="1" checked> <?php esc_html_e( 'Dry run (preview only, no changes are saved)', 'the-learning-studio' ); ?></label></p>
 			<p><label><input type="checkbox" name="tls_update_existing" value="1"> <?php esc_html_e( 'Update content that already exists (matched by slug)', 'the-learning-studio' ); ?></label></p>
-			<p class="description"><?php esc_html_e( 'Leave "Update existing" unchecked to only create new Subjects, Lessons, Pages, and Posts, leaving anything already present untouched.', 'the-learning-studio' ); ?></p>
+			<p class="description"><?php esc_html_e( 'Leave "Update existing" unchecked to only create new Subjects, Lessons, Pages, Posts, Quizzes, and Surveys, leaving anything already present untouched.', 'the-learning-studio' ); ?></p>
 			<?php submit_button( __( 'Run import', 'the-learning-studio' ), 'primary', 'tls_import_submit' ); ?>
 		</form>
 	</div>
@@ -457,7 +566,7 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 		 * : Preview the import without writing any changes.
 		 *
 		 * [--update-existing]
-		 * : Update Subjects, Lessons, Pages, and Posts that already exist with a matching slug. Without this flag, existing items are left untouched and reported as skipped.
+		 * : Update Subjects, Lessons, Pages, Posts, Quizzes, and Surveys that already exist with a matching slug. Without this flag, existing items are left untouched and reported as skipped.
 		 */
 		public function __invoke( array $args, array $assoc_args ): void {
 			if ( empty( $assoc_args['source'] ) ) {
@@ -473,7 +582,7 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 				WP_CLI::error( $error->getMessage() );
 				return;
 			}
-			foreach ( array( 'subjects', 'lessons', 'pages', 'posts' ) as $key ) {
+			foreach ( array( 'subjects', 'lessons', 'pages', 'posts', 'quizzes', 'surveys' ) as $key ) {
 				foreach ( $result[ $key ] as $item ) {
 					$detail = $item['message'] ? ' - ' . $item['message'] : '';
 					WP_CLI::log( sprintf( '[%s] %s (%s): %s%s', ucfirst( $key ), $item['title'], $item['slug'], $item['action'], $detail ) );

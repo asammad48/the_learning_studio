@@ -1,0 +1,36 @@
+[
+  {
+    "slug": "business-basics-quiz",
+    "title": "Business Basics Quiz",
+    "excerpt": "Three quick questions to check your grasp of core business fundamentals.",
+    "questions": [
+      {
+        "type": "multiple_choice",
+        "question": "What does ROI stand for?",
+        "options": [
+          "Return on Investment",
+          "Rate of Interest",
+          "Return on Income",
+          "Ratio of Investment"
+        ],
+        "correct": 1
+      },
+      {
+        "type": "true_false",
+        "question": "Compound interest grows faster than simple interest over time.",
+        "correct": "true"
+      },
+      {
+        "type": "multiple_choice",
+        "question": "Which of the five functions of management involves setting objectives and deciding how to achieve them?",
+        "options": [
+          "Planning",
+          "Organizing",
+          "Leading",
+          "Controlling"
+        ],
+        "correct": 1
+      }
+    ]
+  }
+]

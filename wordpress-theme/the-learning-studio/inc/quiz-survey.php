@@ -325,6 +325,51 @@ function tls_sanitize_posted_questions( bool $with_correct ): array {
 	return $questions;
 }
 
+/**
+ * Sanitize a question list coming from JSON import data (data/quizzes.json
+ * or data/surveys.json), as opposed to a submitted admin form. Options are
+ * already an array here, and "correct" is given directly rather than split
+ * across correct/correct_tf fields.
+ *
+ * @param array<int,array<string,mixed>> $questions    Raw question definitions from JSON.
+ * @param bool                           $with_correct Whether to read/keep "correct answer" fields.
+ * @return array<int,array<string,mixed>>
+ */
+function tls_sanitize_imported_questions( array $questions, bool $with_correct ): array {
+	$sanitized = array();
+	foreach ( $questions as $item ) {
+		if ( ! is_array( $item ) ) {
+			continue;
+		}
+		$question_text = sanitize_text_field( $item['question'] ?? '' );
+		if ( '' === $question_text ) {
+			continue;
+		}
+		$type = ( 'true_false' === ( $item['type'] ?? '' ) ) ? 'true_false' : 'multiple_choice';
+		$row  = array(
+			'type'     => $type,
+			'question' => $question_text,
+		);
+		if ( 'multiple_choice' === $type ) {
+			$options = array_values(
+				array_filter(
+					array_map( 'sanitize_text_field', is_array( $item['options'] ?? null ) ? $item['options'] : array() ),
+					static fn( string $option ): bool => '' !== $option
+				)
+			);
+			$row['options'] = $options;
+			if ( $with_correct ) {
+				$correct        = max( 1, (int) ( $item['correct'] ?? 1 ) );
+				$row['correct'] = $options ? min( $correct, count( $options ) ) : 1;
+			}
+		} elseif ( $with_correct ) {
+			$row['correct'] = ( 'false' === (string) ( $item['correct'] ?? 'true' ) ) ? 'false' : 'true';
+		}
+		$sanitized[] = $row;
+	}
+	return $sanitized;
+}
+
 function tls_save_quiz_meta( int $post_id ): void {
 	if ( ! isset( $_POST['tls_questions_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['tls_questions_nonce'] ) ), 'tls_save_questions' ) ) {
 		return;

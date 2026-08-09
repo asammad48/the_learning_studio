@@ -1,0 +1,22 @@
+[
+  {
+    "slug": "learning-preferences-survey",
+    "title": "Learning Preferences Survey",
+    "excerpt": "Two quick questions to help us understand how you like to learn.",
+    "questions": [
+      {
+        "type": "multiple_choice",
+        "question": "How do you prefer to learn?",
+        "options": [
+          "Videos",
+          "Written lessons",
+          "A mix of both"
+        ]
+      },
+      {
+        "type": "true_false",
+        "question": "I would recommend The Learning Studio to a friend."
+      }
+    ]
+  }
+]
