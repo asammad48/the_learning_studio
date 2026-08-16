@@ -1,0 +1,104 @@
+[
+  {
+    "slug": "business-basics-quiz",
+    "title": "Business Basics Quiz",
+    "excerpt": "Three quick questions to check your grasp of core business fundamentals.",
+    "questions": [
+      {
+        "type": "multiple_choice",
+        "question": "What does ROI stand for?",
+        "options": [
+          "Return on Investment",
+          "Rate of Interest",
+          "Return on Income",
+          "Ratio of Investment"
+        ],
+        "correct": 1
+      },
+      {
+        "type": "true_false",
+        "question": "Compound interest grows faster than simple interest over time.",
+        "correct": "true"
+      },
+      {
+        "type": "multiple_choice",
+        "question": "Which of the five functions of management involves setting objectives and deciding how to achieve them?",
+        "options": [
+          "Planning",
+          "Organizing",
+          "Leading",
+          "Controlling"
+        ],
+        "correct": 1
+      }
+    ]
+  },
+  {
+    "slug": "artificial-intelligence-quiz",
+    "title": "Artificial Intelligence Quiz",
+    "excerpt": "Three questions to check your understanding of what AI actually is and how it learns.",
+    "questions": [
+      {
+        "type": "multiple_choice",
+        "question": "Which of these best describes machine learning?",
+        "options": [
+          "A system that follows only hard-coded rules",
+          "A system that improves its performance from data without being explicitly reprogrammed",
+          "A system that can only process images",
+          "A type of database"
+        ],
+        "correct": 2
+      },
+      {
+        "type": "true_false",
+        "question": "All artificial intelligence systems are capable of general reasoning across any task.",
+        "correct": "false"
+      },
+      {
+        "type": "multiple_choice",
+        "question": "What is a training dataset used for?",
+        "options": [
+          "Storing the final product",
+          "Teaching a model patterns before it is evaluated",
+          "Deploying a model to users",
+          "Compressing model files"
+        ],
+        "correct": 2
+      }
+    ]
+  },
+  {
+    "slug": "health-and-medical-basics-quiz",
+    "title": "Health & Medical Basics Quiz",
+    "excerpt": "Three questions covering the fundamentals of how the human body works.",
+    "questions": [
+      {
+        "type": "multiple_choice",
+        "question": "Which organ pumps blood throughout the body?",
+        "options": [
+          "Liver",
+          "Heart",
+          "Lungs",
+          "Kidneys"
+        ],
+        "correct": 2
+      },
+      {
+        "type": "true_false",
+        "question": "The human heart has four chambers.",
+        "correct": "true"
+      },
+      {
+        "type": "multiple_choice",
+        "question": "What is the main function of red blood cells?",
+        "options": [
+          "Fighting infection",
+          "Carrying oxygen",
+          "Digesting food",
+          "Producing hormones"
+        ],
+        "correct": 2
+      }
+    ]
+  }
+]

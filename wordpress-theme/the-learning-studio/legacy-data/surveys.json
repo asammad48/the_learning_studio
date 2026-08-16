@@ -1,0 +1,63 @@
+[
+  {
+    "slug": "learning-preferences-survey",
+    "title": "Learning Preferences Survey",
+    "excerpt": "Two quick questions to help us understand how you like to learn.",
+    "questions": [
+      {
+        "type": "multiple_choice",
+        "question": "How do you prefer to learn?",
+        "options": [
+          "Videos",
+          "Written lessons",
+          "A mix of both"
+        ]
+      },
+      {
+        "type": "true_false",
+        "question": "I would recommend The Learning Studio to a friend."
+      }
+    ]
+  },
+  {
+    "slug": "quiz-feedback-survey",
+    "title": "Quiz Feedback Survey",
+    "excerpt": "Two quick questions about the quizzes on this site.",
+    "questions": [
+      {
+        "type": "multiple_choice",
+        "question": "How difficult did you find the quizzes on this site?",
+        "options": [
+          "Too easy",
+          "Just right",
+          "Too hard"
+        ]
+      },
+      {
+        "type": "true_false",
+        "question": "I would like to see more quizzes like this on the site."
+      }
+    ]
+  },
+  {
+    "slug": "subject-interest-survey",
+    "title": "Subject Interest Survey",
+    "excerpt": "Two quick questions to help us decide what to build next.",
+    "questions": [
+      {
+        "type": "multiple_choice",
+        "question": "Which subject would you like to see more lessons on?",
+        "options": [
+          "Business & Management",
+          "Artificial Intelligence",
+          "Health & Medical",
+          "Finance"
+        ]
+      },
+      {
+        "type": "true_false",
+        "question": "I have completed a Lesson on this site before."
+      }
+    ]
+  }
+]

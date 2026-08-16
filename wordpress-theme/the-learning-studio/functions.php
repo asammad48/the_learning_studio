@@ -14,6 +14,7 @@ require_once get_template_directory() . '/inc/template-tags.php';
 require_once get_template_directory() . '/inc/importer.php';
 require_once get_template_directory() . '/inc/customizer.php';
 require_once get_template_directory() . '/inc/setup.php';
+require_once get_template_directory() . '/inc/quiz-survey.php';
 
 function tls_theme_setup(): void {
 	load_theme_textdomain( 'the-learning-studio', get_template_directory() . '/languages' );
@@ -77,6 +78,7 @@ add_action( 'wp_enqueue_scripts', 'tls_enqueue_assets' );
 
 function tls_flush_rewrites_after_switch(): void {
 	tls_register_content_types();
+	tls_register_quiz_survey_types();
 	flush_rewrite_rules();
 }
 add_action( 'after_switch_theme', 'tls_flush_rewrites_after_switch' );
