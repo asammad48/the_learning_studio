@@ -2,9 +2,10 @@
 """Generate the content-editing guide PDF (docs/content-guide.pdf).
 
 Covers: importing the theme in WordPress Playground, and adding a Lesson,
-a Subject, and a Blog post, both through the WordPress admin and through
-the JSON pipeline. Pulls real examples straight from data/*.json and the
-committed Playground blueprint, so the guide never drifts from the repo.
+a Subject, a Blog post, a Quiz, and a Survey, both through the WordPress
+admin and through the JSON pipeline. Pulls real examples straight from
+data/*.json and the committed Playground blueprint, so the guide never
+drifts from the repo.
 
 Run with:
     python scripts/generate_content_guide_pdf.py
@@ -181,10 +182,14 @@ def main() -> None:
     subjects = json.loads((DATA / "subjects.json").read_text(encoding="utf-8"))
     lessons = json.loads((DATA / "lessons.json").read_text(encoding="utf-8"))
     posts = json.loads((DATA / "posts.json").read_text(encoding="utf-8"))
+    quizzes = json.loads((DATA / "quizzes.json").read_text(encoding="utf-8"))
+    surveys = json.loads((DATA / "surveys.json").read_text(encoding="utf-8"))
 
     example_subject = next(s for s in subjects if s["slug"] == "project-management")
     example_lesson = next(l for l in lessons if l["slug"] == "what-is-project-management")
     example_post = next(p for p in posts if p["slug"] == "why-we-built-the-learning-studio")
+    example_quiz = next(q for q in quizzes if q["slug"] == "business-basics-quiz")
+    example_survey = next(s for s in surveys if s["slug"] == "learning-preferences-survey")
 
     playground_link = build_playground_link()
 
@@ -207,8 +212,8 @@ def main() -> None:
     pdf.multi_cell(
         0, 7,
         "Importing the theme in WordPress Playground, and adding a Lesson, "
-        "a Subject, and a Blog post - through the WordPress admin and "
-        "through the JSON content pipeline.",
+        "a Subject, a Blog post, a Quiz, and a Survey - through the "
+        "WordPress admin and through the JSON content pipeline.",
         align="C",
     )
     pdf.ln(20)
@@ -227,7 +232,9 @@ def main() -> None:
         "2. Adding a Lesson",
         "3. Adding a Subject",
         "4. Adding a Blog post",
-        "5. Reference and links",
+        "5. Adding a Quiz",
+        "6. Adding a Survey",
+        "7. Reference and links",
     ]
     for item in toc:
         pdf.set_font("Helvetica", size=12)
@@ -248,14 +255,14 @@ def main() -> None:
     )
     pdf.numbered(1, f"Open [{PLAYGROUND_URL}]({PLAYGROUND_URL})")
     pdf.numbered(2, "Click **Blueprint** in the toolbar, then paste the JSON below (or use the direct link at the end of this section).")
-    pdf.numbered(3, "Playground installs the theme straight from GitHub, imports every Subject/Lesson/Page/Post, and runs the setup wizard automatically.")
+    pdf.numbered(3, "Playground installs the theme straight from GitHub, imports every Subject/Lesson/Page/Post/Quiz/Survey, and runs the setup wizard automatically.")
     pdf.ln(2)
     pdf.h3("Blueprint JSON (wordpress-theme/playground-blueprint.json)")
     pdf.code_block((ROOT / "wordpress-theme" / "playground-blueprint.json").read_text(encoding="utf-8").rstrip())
     pdf.ln(2)
     pdf.body("**What each step does:**")
     pdf.bullet("`installTheme` with a `git:directory` resource pulls just the theme subfolder out of the repo (a monorepo) and activates it - no build step needed.")
-    pdf.bullet("`runPHP` calls two theme functions directly: `tls_import_json_content()` (imports Subjects, Lessons, Pages, and Posts from `legacy-data/`) and `tls_run_site_setup()` (creates the required Pages, builds and assigns the 4 navigation menus, and configures Reading settings).")
+    pdf.bullet("`runPHP` calls two theme functions directly: `tls_import_json_content()` (imports Subjects, Lessons, Pages, Posts, Quizzes, and Surveys from `legacy-data/`) and `tls_run_site_setup()` (creates the required Pages, builds and assigns the 4 navigation menus, and configures Reading settings).")
     pdf.ln(2)
     pdf.click_label(">> Click to open this Blueprint directly in WordPress Playground", playground_link)
 
@@ -367,10 +374,77 @@ def main() -> None:
     pdf.code_block(json_snippet(example_post))
 
     # ============================================================
-    # PART 5 - Reference
+    # PART 5 - Quizzes
     # ============================================================
     pdf.add_page()
-    pdf.h1("5. Reference and links")
+    pdf.h1("5. Adding a Quiz")
+    pdf.body(
+        "Quizzes are their own post type with multiple-choice or true/false "
+        "questions and a correct answer set by the admin. Taking a quiz "
+        "requires being logged in (visitors are sent to log in or register "
+        "otherwise), since the score is tracked per WordPress user in a "
+        "dedicated database table."
+    )
+
+    pdf.h2("Through the WordPress admin")
+    pdf.numbered(1, "Go to **Quizzes -> Add New Quiz**.")
+    pdf.numbered(2, "**Title** and **Excerpt** - the excerpt shows on the /quizzes/ archive card.")
+    pdf.numbered(3, "**Questions** box (main column): click **Add question** for each row.")
+    pdf.bullet("**Question text** - the question itself")
+    pdf.bullet("**Type** - Multiple choice or True / False")
+    pdf.bullet("For multiple choice: **Options (one per line)** and **Correct option number (1-based)** - e.g. entering 2 means the second line is correct")
+    pdf.bullet("For true/false: a **Correct answer** dropdown (True or False)")
+    pdf.numbered(4, "Click **Publish**.")
+    pdf.numbered(5, "The **Attempts** box (sidebar) fills in as visitors take the quiz - each row shows who took it, their score, and when.")
+    pdf.body("A visitor's result page shows a per-question correct/incorrect breakdown and a **Take again** link; their past attempts are listed below the quiz form on repeat visits.")
+
+    pdf.add_page()
+    pdf.h2("Through the JSON pipeline")
+    pdf.numbered(1, "Edit `data/quizzes.json` (optional file - older imports without it still work).")
+    pdf.numbered(2, "Each question has a `type` of `multiple_choice` or `true_false`.")
+    pdf.bullet("`multiple_choice` needs an `options` array and a 1-based `correct` index into it.")
+    pdf.bullet("`true_false` needs `correct` set to the string `\"true\"` or `\"false\"`.")
+    pdf.numbered(3, "Copy the entry into `wordpress-theme/the-learning-studio/legacy-data/quizzes.json`, then import via **Tools -> Learning Studio Import**, `wp tls import`, or the Playground blueprint.")
+    pdf.body("Note: like Posts, Quizzes are WordPress-only - the static (non-WordPress) site has no quiz concept.")
+    pdf.ln(2)
+    pdf.h3("Real example - data/quizzes.json")
+    pdf.code_block(json_snippet(example_quiz))
+
+    # ============================================================
+    # PART 6 - Surveys
+    # ============================================================
+    pdf.add_page()
+    pdf.h1("6. Adding a Survey")
+    pdf.body(
+        "Surveys use the same multiple-choice/true-false question builder as "
+        "Quizzes, but collect opinions rather than score correct answers. "
+        "Taking a survey also requires being logged in, since one response "
+        "per user is tracked and tallied into a live aggregate."
+    )
+
+    pdf.h2("Through the WordPress admin")
+    pdf.numbered(1, "Go to **Surveys -> Add New Survey**.")
+    pdf.numbered(2, "**Title** and **Excerpt** - the excerpt shows on the /surveys/ archive card.")
+    pdf.numbered(3, "**Questions** box (main column): click **Add question** for each row - **Question text**, **Type** (Multiple choice or True / False), and for multiple choice, **Options (one per line)**. There is no correct-answer field for Surveys.")
+    pdf.numbered(4, "Click **Publish**.")
+    pdf.numbered(5, "The **Response summary** box (sidebar) shows a running per-option tally as responses come in.")
+    pdf.body("After a visitor submits, they see a thank-you message and a bar-chart-style breakdown of every response so far, per question and option.")
+
+    pdf.add_page()
+    pdf.h2("Through the JSON pipeline")
+    pdf.numbered(1, "Edit `data/surveys.json` (optional file - older imports without it still work).")
+    pdf.numbered(2, "Same `type`/`options` shape as Quizzes, but omit `correct` entirely - Surveys never score answers.")
+    pdf.numbered(3, "Copy the entry into `wordpress-theme/the-learning-studio/legacy-data/surveys.json`, then import via **Tools -> Learning Studio Import**, `wp tls import`, or the Playground blueprint.")
+    pdf.body("Note: like Quizzes, Surveys are WordPress-only - the static (non-WordPress) site has no survey concept.")
+    pdf.ln(2)
+    pdf.h3("Real example - data/surveys.json")
+    pdf.code_block(json_snippet(example_survey))
+
+    # ============================================================
+    # PART 7 - Reference
+    # ============================================================
+    pdf.add_page()
+    pdf.h1("7. Reference and links")
 
     pdf.h2("Links")
     pdf.link_line("Repository", REPO_URL)
@@ -384,6 +458,7 @@ def main() -> None:
     pdf.bullet("**Tools -> Learning Studio Import** - imports data/*.json content")
     pdf.bullet("**Lessons -> All Lessons** / **Lessons -> Subjects**")
     pdf.bullet("**Posts -> All Posts** - Blog posts")
+    pdf.bullet("**Quizzes -> All Quizzes** / **Surveys -> All Surveys**")
     pdf.bullet("**Appearance -> Customize** - hero, panel, subjects/lessons section controls")
 
     pdf.h2("Useful commands")
